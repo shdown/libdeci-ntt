@@ -22,16 +22,28 @@
 #include <stddef.h>
 #include "deci.h"
 
+// Returns ((size_t) -1) if spans of given sizes can not be multiplied using this library.
 size_t decintt_mul_nscratch_bytes(size_t nwa, size_t nwb);
 
+// Multiplies (wa ... wa+nwa) by (wb ... wb+nwb), writing result into (out ... out+nwa+nwb).
+//
+// 'scratch' must:
+//   * be aligned on 'sizeof(deci_DOUBLE_UWORD)';
+//   * have capacity of 'decintt_mul_nscratch_bytes(nwa, nwb)'.
 void decintt_mul(
         deci_UWORD *wa, size_t nwa,
         deci_UWORD *wb, size_t nwb,
         deci_UWORD *out,
         void *scratch);
 
+// Returns ((size_t) -1) if span of given size can not be squared using this library.
 size_t decintt_sqr_nscratch_bytes(size_t nwa);
 
+// Multiplies (wa ... wa+nwa) by itself, writing result into (out ... out+2*nwa).
+//
+// 'scratch' must:
+//   * be aligned on 'sizeof(deci_DOUBLE_UWORD)';
+//   * have capacity of 'decintt_sqr_nscratch_bytes(nwa)'.
 void decintt_sqr(
         deci_UWORD *wa, size_t nwa,
         deci_UWORD *out,
