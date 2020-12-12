@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <string.h>
 
 static void die_oom(void)
@@ -113,10 +114,10 @@ static void pretty_print(const deci_UWORD *w, size_t nw)
     }
 
     size_t i = nw - 1;
-    printf("%u", (unsigned) w[i]);
+    printf("%" PRIu32, (uint32_t) w[i]);
     while (i) {
         --i;
-        printf("%0*u", DECI_BASE_LOG, (unsigned) w[i]);
+        printf("%0*" PRIu32, DECI_BASE_LOG, (uint32_t) w[i]);
     }
     printf("\n");
 }
