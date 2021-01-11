@@ -159,6 +159,13 @@ int main(int argc, char **argv)
 
         pretty_print(wout, nwout);
 
+        free(a);
+        free(b);
+        free(wa);
+        free(wb);
+        free(s);
+        free(wout);
+
     } else if (strcmp(arg, "sqr") == 0) {
 
         char *a = read_number_str();
@@ -176,6 +183,11 @@ int main(int argc, char **argv)
         decintt_sqr(wa, nwa, wout, s);
 
         pretty_print(wout, nwout);
+
+        free(a);
+        free(wa);
+        free(s);
+        free(wout);
 
     } else {
         print_usage_and_exit();
