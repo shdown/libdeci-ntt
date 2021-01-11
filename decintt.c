@@ -22,6 +22,7 @@
 #include "decintt_private.h"
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 #include <stdbool.h>
 
 #if DECI_WE_ARE_64_BIT
@@ -110,68 +111,71 @@ size_t decintt_sqr_nscratch_bytes(size_t nwa)
     return (s * 3 + 2) * sizeof(FFT_ULIMB);
 }
 
+// Assumes nout >= ceil(nwa * DECI_BASE_LOG / FFT_BASE).
 static void conv_to(deci_UWORD *wa, size_t nwa, FFT_ULIMB *out, size_t nout)
 {
-    while (nwa && wa[nwa - 1] == 0)
-        --nwa;
-
-    size_t leftover = nwa % FFT_BASE;
     FFT_ULIMB *out_end = out + nout;
-    deci_UWORD *wa_boundary = wa + nwa - leftover;
 
-    FFT_ULIMB *p = raw_conv_to(wa, wa_boundary, out);
+    size_t nleftover = nwa % FFT_BASE;
+    deci_UWORD *leftover = wa + nwa - nleftover;
+
+    out = raw_conv_to(wa, leftover, out);
 
     deci_UWORD buf_in  [FFT_BASE];
     FFT_ULIMB  buf_out [DECI_BASE_LOG];
 
-    for (size_t i = 0; i < leftover; ++i)
-        buf_in[i] = wa_boundary[i];
-    for (size_t i = leftover; i < FFT_BASE; ++i)
+    for (size_t i = 0; i < nleftover; ++i)
+        buf_in[i] = leftover[i];
+    for (size_t i = nleftover; i < FFT_BASE; ++i)
         buf_in[i] = 0;
 
     (void) raw_conv_to(buf_in, buf_in + FFT_BASE, buf_out);
 
-    size_t ncopy = out_end - p;
+    size_t ncopy = out_end - out;
     if (ncopy > DECI_BASE_LOG)
         ncopy = DECI_BASE_LOG;
 
     for (size_t i = 0; i < ncopy; ++i)
-        p[i] = buf_out[i];
+        out[i] = buf_out[i];
 
-    for (p += ncopy; p != out_end; ++p)
-        *p = 0;
+    for (out += ncopy; out != out_end; ++out)
+        *out = 0;
 }
 
 static void conv_from(FFT_ULIMB *a, size_t na, deci_UWORD *out, size_t nout)
 {
+    deci_UWORD *out_end = out + nout;
+
     while (na && a[na - 1] == 0)
         --na;
 
-    size_t leftover = na % DECI_BASE_LOG;
-    deci_UWORD *out_end = out + nout;
-    FFT_ULIMB *a_boundary = a + na - leftover;
+    size_t nleftover = na % DECI_BASE_LOG;
+    if (!nleftover && na)
+        nleftover = DECI_BASE_LOG;
 
-    deci_UWORD *p = raw_conv_from(a, a_boundary, out);
+    FFT_ULIMB *leftover = a + na - nleftover;
+
+    out = raw_conv_from(a, leftover, out);
 
     FFT_ULIMB  buf_in  [DECI_BASE_LOG];
     deci_UWORD buf_out [FFT_BASE];
 
-    for (size_t i = 0; i < leftover; ++i)
-        buf_in[i] = a_boundary[i];
-    for (size_t i = leftover; i < DECI_BASE_LOG; ++i)
+    for (size_t i = 0; i < nleftover; ++i)
+        buf_in[i] = leftover[i];
+    for (size_t i = nleftover; i < DECI_BASE_LOG; ++i)
         buf_in[i] = 0;
 
     (void) raw_conv_from(buf_in, buf_in + DECI_BASE_LOG, buf_out);
 
-    size_t ncopy = out_end - p;
+    size_t ncopy = out_end - out;
     if (ncopy > FFT_BASE)
         ncopy = FFT_BASE;
 
     for (size_t i = 0; i < ncopy; ++i)
-        p[i] = buf_out[i];
+        out[i] = buf_out[i];
 
-    for (p += ncopy; p != out_end; ++p)
-        *p = 0;
+    for (out += ncopy; out != out_end; ++out)
+        *out = 0;
 }
 
 void decintt_mul(
