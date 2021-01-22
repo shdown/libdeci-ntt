@@ -22,6 +22,10 @@ run_driver() {
 
 gen_for_n() {
     local n=$1
+    if (( n == 0 )); then
+        echo 0
+        return
+    fi
     local q=$(( n / 9 ))
     local r=$(( n % 9 ))
     local i
@@ -36,7 +40,7 @@ gen_for_n() {
 
 test_mul() {
     local n x y
-    for (( n = 1; n <= NMUL; ++n )); do
+    for (( n = 0; n <= NMUL; ++n )); do
         echo >&2 "[mul] n=$n..."
         x=$(gen_for_n "$n")
         y=$({ echo "$x"; echo 1; } | run_driver mul)
@@ -51,7 +55,7 @@ test_mul() {
 
 test_sqr() {
     local n x x2 y
-    for (( n = 1; n <= NSQR; ++n )); do
+    for (( n = 0; n <= NSQR; ++n )); do
         echo >&2 "[sqr] n=$n..."
         x=$(gen_for_n "$n")
         x2=$(python3 -c 'a=int(input()); print(a*a)' <<< "$x")
