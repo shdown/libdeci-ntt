@@ -124,8 +124,15 @@ def main():
     args = parser.parse_args()
     n, m = args.n, args.m
 
-    print('// Auto-generated; do not edit.')
-    print(f'// Params: deci_UWORD => base 10^{n}, FFT_ULIMB => base 10^{m}.')
+    print(f'''\
+// Auto-generated; do not edit.
+
+// gen_conv params: deci_UWORD => base 10^{n}, FFT_ULIMB => base 10^{m}.
+
+#if DECI_BASE_LOG != {n}
+# error "Unsupported DECI_BASE_LOG (expected {n})."
+#endif
+''')
 
     gen_conv_to(n=n, m=m, func_name=f'raw_conv_to', func_quals='static')
     gen_conv_from(n=n, m=m, func_name=f'raw_conv_from', func_quals='static')

@@ -1,5 +1,11 @@
 // Auto-generated; do not edit.
-// Params: deci_UWORD => base 10^9, FFT_ULIMB => base 10^14.
+
+// gen_conv params: deci_UWORD => base 10^9, FFT_ULIMB => base 10^14.
+
+#if DECI_BASE_LOG != 9
+# error "Unsupported DECI_BASE_LOG (expected 9)."
+#endif
+
 static FFT_ULIMB *raw_conv_to(deci_UWORD *wa, deci_UWORD *wa_end, FFT_ULIMB *out)
 {
  while (wa != wa_end) {
