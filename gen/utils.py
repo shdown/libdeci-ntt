@@ -54,7 +54,7 @@ def factorize(n):
         i += 1
 
     if n > 1:
-        result.append(i)
+        result.append(n)
 
     return result
 
